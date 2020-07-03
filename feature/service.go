@@ -13,6 +13,12 @@ type itemService struct {
 	repo itemRepository
 }
 
+func newItemService(repo itemRepository) *itemService {
+	return &itemService{
+		repo: repo,
+	}
+}
+
 func (service itemService) addItem(item models.Item) error {
 	// check if item exists
 	_, err := service.repo.getItemByName(item.Name)
