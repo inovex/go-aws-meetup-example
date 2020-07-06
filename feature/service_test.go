@@ -1,6 +1,7 @@
 package feature
 
 import (
+	"errors"
 	"example.com/service/models"
 	"github.com/tj/assert"
 	"testing"
@@ -63,6 +64,35 @@ func Test_itemService_addItem(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "conflicting update returns already exists error and does not change the repo",
+			fields: fields{
+				repo: &mockItemRepo{
+					itemsByName: map[string]models.Item{
+						"Item Name": {
+							ID:    "item_123",
+							Name:  "Item Name",
+							Price: 49.99,
+						},
+					},
+				},
+			},
+			args: args{
+				item: models.Item{
+					ID:    "item_456",
+					Name:  "Item Name",
+					Price: 69.99,
+				},
+			},
+			wantErr: models.ErrItemAlreadyExists,
+			wantRepoContent: []models.Item{
+				{
+					ID:    "item_123",
+					Name:  "Item Name",
+					Price: 49.99,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -70,9 +100,15 @@ func Test_itemService_addItem(t *testing.T) {
 				repo: tt.fields.repo,
 			}
 			err := service.addItem(tt.args.item)
-			assert.IsType(t, tt.wantErr, err, "expected and returned errors should match")
+			assertErrorIs(t, tt.wantErr, err)
 			assertContainsExactly(t, tt.fields.repo.itemsByName, tt.wantRepoContent)
 		})
+	}
+}
+
+func assertErrorIs(t *testing.T, expected error, actual error) {
+	if !errors.Is(actual, expected) {
+		t.Errorf("expected any error in the actual error chain to match the expected error")
 	}
 }
 
