@@ -5,7 +5,7 @@ import (
 )
 
 type itemRepository interface {
-	getItemByName(id string) (models.Item, error)
+	getItemByName(name string) (models.Item, error)
 	putItem(item models.Item) error
 }
 
