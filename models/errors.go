@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var ErrItemNotFound = errors.New("item not found")
+
 var ErrItemAlreadyExists = errors.New("item already exists")
 
 var ErrWriteFailed = errors.New("write failed")
