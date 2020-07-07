@@ -1,12 +1,13 @@
 package feature
 
 import (
+	"context"
 	"example.com/service/models"
 )
 
 type itemRepository interface {
-	getItemByName(name string) (models.Item, error)
-	putItem(item models.Item) error
+	getItemByName(ctx context.Context, name string) (models.Item, error)
+	putItem(ctx context.Context, item models.Item) error
 }
 
 type itemService struct {
@@ -19,9 +20,9 @@ func newItemService(repo itemRepository) *itemService {
 	}
 }
 
-func (service itemService) addItem(item models.Item) error {
+func (service itemService) addItem(ctx context.Context, item models.Item) error {
 	// check if item exists
-	_, err := service.repo.getItemByName(item.Name)
+	_, err := service.repo.getItemByName(ctx, item.Name)
 
 	if err == nil {
 		// if getItem returns valid item with the same id, fail
@@ -29,7 +30,7 @@ func (service itemService) addItem(item models.Item) error {
 	}
 
 	// otherwise, try to save the item
-	err = service.repo.putItem(item)
+	err = service.repo.putItem(ctx, item)
 	if err != nil {
 		return models.ErrWriteFailedWithCause(err)
 	}

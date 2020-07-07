@@ -1,6 +1,7 @@
 package feature
 
 import (
+	"context"
 	"example.com/service/models"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/guregu/dynamo"
@@ -24,14 +25,14 @@ func newDynamoRepo(itemTableName string) *dynamoRepo {
 	}
 }
 
-func (d dynamoRepo) getItemByName(id string) (models.Item, error) {
+func (d dynamoRepo) getItemByName(ctx context.Context, name string) (models.Item, error) {
 	panic("implement me")
 }
 
-func (d dynamoRepo) putItem(item models.Item) error {
+func (d dynamoRepo) putItem(ctx context.Context, item models.Item) error {
 	panic("implement me")
 }
 
-func (d dynamoRepo) getItems() ([]models.Item, error) {
+func (d dynamoRepo) getItems(ctx context.Context) ([]models.Item, error) {
 	panic("implement me")
 }

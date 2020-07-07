@@ -1,23 +1,28 @@
 package feature
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"example.com/service/logger"
 	"example.com/service/models"
 	"fmt"
 	"net/http"
 )
 
 type itemGetter interface {
-	getItems() ([]models.Item, error)
+	getItems(context.Context) ([]models.Item, error)
 }
 
 func CreateGetItemsHandler(g itemGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		items, err := g.getItems()
+		log := logger.FromRequest(r)
+		log.Info("retrieving items")
+		items, err := g.getItems(r.Context())
 		if err != nil {
-			// TODO logging
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			const msg = "unexpected server error"
+			log.Errorw(msg, "error", err)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
 		_ = json.NewEncoder(w).Encode(items)
@@ -25,27 +30,38 @@ func CreateGetItemsHandler(g itemGetter) http.HandlerFunc {
 }
 
 type itemAdder interface {
-	addItem(item models.Item) error
+	addItem(ctx context.Context, item models.Item) error
 }
 
 func CreateNewItemHandler(a itemAdder) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var item models.Item
 		err := json.NewDecoder(r.Body).Decode(&item)
+		log := logger.FromRequest(r).With("item", item)
+		ctx := logger.AddLoggerToContext(r.Context(), log)
+
 		if err != nil || !item.Valid() {
+			log.Warn("invalid input")
 			http.Error(w, "invalid input", http.StatusBadRequest)
 			return
 		}
 
-		err = a.addItem(item)
+		log.Info("trying to add item")
+		err = a.addItem(ctx, item)
 		if errors.Is(err, models.ErrItemAlreadyExists) {
-			http.Error(w, fmt.Sprintf("item with name %s already exists", item.Name), http.StatusConflict)
+			const msg = "item with the same name already exists"
+			log.Warn(msg, "name", item.Name)
+			http.Error(w, fmt.Sprintf("%s: %s", msg, item.Name), http.StatusConflict)
 			return
 		} else if errors.Is(err, models.ErrWriteFailed) {
-			http.Error(w, "write of valid new item failed for unknown reason", http.StatusInternalServerError)
+			const msg = "write of valid new item failed for unknown reason"
+			log.Errorw(msg, "error", err)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		} else if err != nil {
-			http.Error(w, "unexpected server error", http.StatusInternalServerError)
+			const msg = "unexpected server error"
+			log.Errorw(msg, "error", err)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
 

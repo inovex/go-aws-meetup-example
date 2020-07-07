@@ -2,6 +2,7 @@ package main
 
 import (
 	"example.com/service/api"
+	"example.com/service/logger"
 	"fmt"
 	"github.com/apex/gateway"
 	"net/http"
@@ -26,12 +27,13 @@ func main() {
 	var err error
 	if config.local {
 		// development configuration
+		logger.EnableDevelopmentLogger()
 		err = http.ListenAndServe("0.0.0.0:8080", a.Router())
 	} else {
 		// AWS configuration
 		err = gateway.ListenAndServe("0.0.0.0:80", a.Router())
 	}
 	if err != nil {
-		// TODO structured logging
+		logger.Get().Errorw("error during server execution", "error", err)
 	}
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"example.com/service/feature"
+	"example.com/service/logger"
 	"github.com/go-chi/chi"
 	"net/http"
 )
@@ -26,6 +27,8 @@ func NewAPI(cfg Configuration) *API {
 
 func (api API) Router() *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(logger.AWSRequestIDMiddleware)
+	r.Use(logger.RequestDurationMiddleware)
 
 	// simple example route:
 	r.Get("/hello", func(writer http.ResponseWriter, request *http.Request) {
