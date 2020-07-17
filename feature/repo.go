@@ -26,13 +26,20 @@ func newDynamoRepo(itemTableName string) *dynamoRepo {
 }
 
 func (d dynamoRepo) getItemByName(ctx context.Context, name string) (models.Item, error) {
-	panic("implement me")
+	var item models.Item
+	err := d.itemTable.
+		Get("Name", name).
+		Index("IndexName").
+		One(&item)
+	return item, err
 }
 
 func (d dynamoRepo) putItem(ctx context.Context, item models.Item) error {
-	panic("implement me")
+	return d.itemTable.Put(item).Run()
 }
 
 func (d dynamoRepo) getItems(ctx context.Context) ([]models.Item, error) {
-	panic("implement me")
+	var result []models.Item
+	err := d.itemTable.Scan().All(&result)
+	return result, err
 }
