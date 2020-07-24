@@ -10,5 +10,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/guregu/dynamo v1.8.0
 	github.com/tj/assert v0.0.3
+	github.com/urfave/cli/v2 v2.1.1
 	go.uber.org/zap v1.15.0
 )
