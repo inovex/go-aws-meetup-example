@@ -3,26 +3,30 @@ package feature
 import (
 	"context"
 	"example.com/service/models"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/guregu/dynamo"
 )
 
-type dynaMock struct {
-	dynamodbiface.DynamoDBAPI
-}
-
 type dynamoRepo struct {
 	itemTable dynamo.Table
-	mock      dynaMock
 }
 
-func newDynamoRepo(itemTableName string) *dynamoRepo {
-	mock := dynaMock{}
-	db := dynamo.NewFromIface(mock)
+// newRepoWithClient returns an instance of dynamoRepo that is using the provided interface
+// for all DB operations. It operates on the table provided by itemTableName.
+func newRepoWithClient(itemTableName string, client dynamodbiface.DynamoDBAPI) *dynamoRepo {
+	db := dynamo.NewFromIface(client)
 	return &dynamoRepo{
 		itemTable: db.Table(itemTableName),
-		mock:      dynaMock{},
 	}
+}
+
+// newDynamoRepo returns an instance of dynamoRepo that uses a default AWS dynamo client
+// and operates on the table provided by itemTableName
+func newDynamoRepo(itemTableName string) *dynamoRepo {
+	client := dynamodb.New(session.Must(session.NewSessionWithOptions(session.Options{})))
+	return newRepoWithClient(itemTableName, client)
 }
 
 func (d dynamoRepo) getItemByName(ctx context.Context, name string) (models.Item, error) {
