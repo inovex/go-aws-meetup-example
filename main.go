@@ -116,7 +116,7 @@ func run(c *cli.Context) error {
 		err = http.ListenAndServe("0.0.0.0:8080", a.Router())
 	} else {
 		// AWS configuration
-		err = gateway.ListenAndServe("0.0.0.0:80", a.Router())
+		err = gateway.ListenAndServe(":123", a.Router())
 	}
 	return err
 }
