@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2020 inovex GmbH <https://www.inovex.de>
+//
+// SPDX-License-Identifier: MIT
 module example.com/service
 
 go 1.14

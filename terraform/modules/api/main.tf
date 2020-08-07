@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 inovex GmbH <https://www.inovex.de>
+# 
+# SPDX-License-Identifier: MIT
 resource "aws_api_gateway_rest_api" "example" {
   name        = "${var.base_name}_api"
   description = "API for ${var.base_name}"

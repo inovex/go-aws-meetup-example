@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 inovex GmbH <https://www.inovex.de>
+# 
+# SPDX-License-Identifier: MIT
 output "lambda_invoke_arn" {
   value = aws_lambda_function.lambda.invoke_arn
 }

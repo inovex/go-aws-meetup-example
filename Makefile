@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 inovex GmbH <https://www.inovex.de>
+#
+# SPDX-License-Identifier: MIT
 LINKERFLAGS = -X main.Version=`git describe --tags --always --long --dirty` -X main.BuildTimestamp=`date -u '+%Y-%m-%d_%I:%M:%S_UTC'`
 
 test:
